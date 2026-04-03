@@ -31,15 +31,15 @@
   <input type="date" id="birthdate" required>
   <input type="text" id="lieu" placeholder="Lieu de naissance" required>
 
-  <input id="phone" type="tel" placeholder="Numéro de téléphone" required>
+  <input id="phone" type="tel" placeholder="Numéro de téléphone">
   <input type="email" id="email" placeholder="Gmail" required>
 
   <!-- Mot de passe avec toggle et indicateur -->
-  <div style="position:relative; margin-bottom:10px;">
-    <input type="password" id="pass1" placeholder="Mot de passe" minlength="6" maxlength="8" required>
-    <span id="togglePass" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer;">👁️</span>
-  </div>
-  <div id="strengthText" style="font-size:14px; margin-bottom:10px;"></div>
+ <div style="position: relative;">
+  <input type="password" id="pass1" placeholder="Mot de passe" minlength="6" maxlength="8" required>
+  <span id="togglePass" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer;">👁️</span>
+</div>
+<div id="strengthText" style="font-size:14px; margin-top:5px;"></div>
 
   <input type="password" id="pass2" placeholder="Confirmer mot de passe" minlength="6" maxlength="8" required>
 
