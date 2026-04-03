@@ -97,7 +97,6 @@ document.getElementById("form").addEventListener("submit", async (e) => {
     return alert("Vous devez avoir au moins 18 ans ❌");
   }
 
-  const phone = iti.getNumber();
 
   // 🔹 UI changement
   document.getElementById("form").style.display = "none";
