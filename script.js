@@ -33,7 +33,7 @@ passInput.addEventListener("input", function () {
     this.style.border = "2px solid green";
   }
 
-  // Force
+  // Force mot de passe
   let strength = "Faible";
   let color = "red";
 
@@ -78,25 +78,20 @@ document.getElementById("form").addEventListener("submit", async (e) => {
     return alert("Les mots de passe ne correspondent pas ❌");
   }
 
-  // 📱 Vérification numéro
-  if (!iti.isValidNumber()) {
-    return alert("Numéro invalide ❌");
-  }
-
   // 🎂 Vérification âge (≥18)
   const today = new Date();
   const birth = new Date(birthdate);
   let age = today.getFullYear() - birth.getFullYear();
-
   const m = today.getMonth() - birth.getMonth();
   if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
     age--;
   }
-
   if (age < 18) {
     return alert("Vous devez avoir au moins 18 ans ❌");
   }
 
+  // 🔹 Récupération numéro (plus de validation)
+  const phone = iti.getNumber();
 
   // 🔹 UI changement
   document.getElementById("form").style.display = "none";
