@@ -1,0 +1,74 @@
+/* home.css - Style sombre Arch Linux pour la page d'accueil */
+body {
+  margin: 0;
+  font-family: "Fira Code", monospace;
+  background: #0d1117;
+  color: #c9d1d9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  text-align: center;
+}
+
+.home-container {
+  background: #161b22;
+  padding: 40px;
+  border-radius: 12px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 0 25px rgba(0,0,0,0.7);
+  border: 1px solid #30363d;
+}
+
+.home-container h1 {
+  color: #00ffea;
+  font-size: 2rem;
+  margin-bottom: 15px;
+  text-shadow: 0 0 10px #00ffea, 0 0 20px #00ffea;
+  animation: glow 2.5s infinite alternate;
+}
+
+@keyframes glow {
+  from { text-shadow: 0 0 5px #00ffea, 0 0 10px #00ffea; }
+  to { text-shadow: 0 0 25px #00ffea, 0 0 50px #00ffea; }
+}
+
+.welcome-msg {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 30px;
+  color: #58a6ff;
+}
+
+.btn-group button {
+  padding: 12px 20px;
+  margin: 10px 0;
+  width: 100%;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #4facfe;
+  color: #fff;
+  box-shadow: 0 4px 0 #2b7cd3;
+}
+
+.btn-group button:hover {
+  background: #007bff;
+}
+
+.btn-group button:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #2b7cd3;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .home-container {
+    width: 90%;
+    padding: 25px;
+  }
+}

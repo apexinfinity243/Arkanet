@@ -1,0 +1,100 @@
+/* Base commune */
+body {
+  margin: 0;
+  font-family: "Fira Code", monospace;
+  background: #0d1117;
+  color: #c9d1d9;
+  overflow-x: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+canvas#bgCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+}
+
+/* Login container */
+.login-container {
+  background: #161b22;
+  padding: 30px;
+  border-radius: 12px;
+  width: 350px;
+  max-width: 90%;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(0,0,0,0.7);
+  border: 1px solid #30363d;
+}
+
+.login-container h1 {
+  color: #00ffea;
+  margin-bottom: 10px;
+}
+
+.login-container p.login-msg {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin-bottom: 20px;
+  color: #58a6ff;
+}
+
+/* Inputs */
+input {
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #30363d;
+  background: #0d1117;
+  color: #c9d1d9;
+  outline: none;
+  transition: 0.2s;
+}
+
+input:focus {
+  border-color: #58a6ff;
+  box-shadow: 0 0 5px #58a6ff;
+}
+
+/* Button */
+button {
+  padding: 10px;
+  width: 100%;
+  background: #4facfe;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  box-shadow: 0 4px 0 #2b7cd3;
+  transition: all 0.1s ease;
+}
+
+button:hover {
+  background: #007bff;
+  cursor: pointer;
+}
+
+button:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #2b7cd3;
+}
+
+/* Error message */
+p.error {
+  color: #ff4d4d;
+  font-size: 0.85rem;
+  margin-top: 5px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .login-container {
+    width: 90%;
+    padding: 20px;
+  }
+}

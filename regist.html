@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Inscription</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="container">
+  <h1 id="welcomeMsg">
+  Bienvenue sur <span style="color:#00ffff;">Arkanet</span> 🌐<br>
+  Ici, chaque ligne de code est une avancée, chaque bug est une leçon, <br>
+  et chaque développeur, chercheur ou créateur est invité à explorer <br>
+  les frontières infinies du numérique. <br>
+</h1>
+
+<!-- FORMULAIRE D'INSCRIPTION -->
+<form id="form">
+  <h2>Inscription</h2>
+
+  <input type="text" id="nom" placeholder="Nom" required>
+  <input type="text" id="post-nom" placeholder="Post-nom" required>
+  <input type="text" id="prenom" placeholder="Prénom" required>
+
+  <input type="date" id="birthdate" required>
+  <input type="text" id="lieu" placeholder="Lieu de naissance" required>
+
+  <input id="phone" type="tel" placeholder="Numéro de téléphone" required>
+  <input type="email" id="email" placeholder="Gmail" required>
+
+  <!-- Mot de passe avec toggle et indicateur -->
+  <div style="position:relative; margin-bottom:10px;">
+    <input type="password" id="pass1" placeholder="Mot de passe" minlength="6" maxlength="8" required>
+    <span id="togglePass" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer;">👁️</span>
+  </div>
+  <div id="strengthText" style="font-size:14px; margin-bottom:10px;"></div>
+
+  <input type="password" id="pass2" placeholder="Confirmer mot de passe" minlength="6" maxlength="8" required>
+
+  <button type="submit">Suivant</button>
+</form>
+
+<!-- SECTION OTP STYLE WHATSAPP -->
+<div id="otpSection" style="display:none; margin-top:20px;">
+  <input class="otp-box" type="tel" inputmode="numeric" maxlength="1">
+  <input class="otp-box" type="tel" inputmode="numeric" maxlength="1">
+  <input class="otp-box" type="tel" inputmode="numeric" maxlength="1">
+  <input class="otp-box" type="tel" inputmode="numeric" maxlength="1">
+  <input class="otp-box" type="tel" inputmode="numeric" maxlength="1">
+  <input class="otp-box" type="tel" inputmode="numeric" maxlength="1">
+  <button id="verifyOtp">Vérifier</button>
+</div>
+</div>
+
+<!-- reCAPTCHA invisible pour SMS (Firebase) -->
+<div id="recaptcha-container"></div>
+
+<!-- Firebase App & Auth compat -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCtSoHWjzLEri5Y9axIfVLyUVFki3Fwt7Y",
+    authDomain: "inscription-otp.firebaseapp.com",
+    projectId: "inscription-otp",
+    storageBucket: "inscription-otp.firebasestorage.app",
+    messagingSenderId: "393651016787",
+    appId: "1:393651016787:web:7245c438d115853e8ee2a6"
+  };
+  firebase.initializeApp(firebaseConfig);
+</script>
+
+<!-- Intl-Tel-Input JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+
+<!-- Script JS -->
+<script src="script.js"></script>
+
+</body>
+</html>

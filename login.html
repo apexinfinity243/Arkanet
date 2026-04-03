@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Connexion - Arkanet</title>
+
+  <link rel="stylesheet" href="login.css">
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas> <!-- Fond circuit imprimé animé -->
+
+<div class="login-container">
+  <h1>Bienvenue sur Arkanet</h1>
+  <p class="login-msg">Connectez-vous pour continuer votre aventure de développeur et explorer de nouveaux horizons du code.</p>
+
+  <form id="loginForm">
+    <input type="email" id="loginEmail" placeholder="Gmail" required>
+    <input type="password" id="loginPass" placeholder="Mot de passe" required>
+    <button type="submit">Se connecter</button>
+    <p id="loginError" class="error"></p>
+  </form>
+
+  <p>Pas encore inscrit ? <a href="regist.html">Créer un compte</a></p>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<!-- JS -->
+<script src="login.js"></script>
+<script src="js/bgCircuit.js"></script> <!-- pour l'animation de fond -->
+</body>
+</html>
