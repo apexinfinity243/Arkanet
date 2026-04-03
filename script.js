@@ -33,7 +33,7 @@ passInput.addEventListener("input", function () {
     this.style.border = "2px solid green";
   }
 
-  // Force mot de passe
+  // Force
   let strength = "Faible";
   let color = "red";
 
@@ -83,39 +83,27 @@ document.getElementById("form").addEventListener("submit", async (e) => {
   const birth = new Date(birthdate);
   let age = today.getFullYear() - birth.getFullYear();
   const m = today.getMonth() - birth.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
-    age--;
-  }
-  if (age < 18) {
-    return alert("Vous devez avoir au moins 18 ans ❌");
-  }
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+  if (age < 18) return alert("Vous devez avoir au moins 18 ans ❌");
 
-  // 🔹 Récupération numéro (plus de validation)
-  const phone = iti.getNumber();
+  const phoneNumber = iti.getNumber();
 
-  // 🔹 UI changement
-  document.getElementById("form").style.display = "none";
-  document.getElementById("otpSection").style.display = "block";
+  // 🔹 Config reCAPTCHA invisible Firebase
+  const appVerifier = new firebase.auth.RecaptchaVerifier(
+    'recaptcha-container', { 'size': 'invisible' }
+  );
 
-  // 🔹 Envoi OTP
   try {
-    const res = await fetch("https://ton-backend.com/send-otp", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ email, phone })
-    });
+    const confirmationResult = await firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier);
+    window.confirmationResult = confirmationResult;
 
-    const data = await res.json();
-
-    if (!data.success) {
-      throw new Error();
-    }
-
-    console.log("OTP envoyé ✅");
+    // 🔹 Masquer formulaire et afficher OTP
+    document.getElementById("form").style.display = "none";
+    document.getElementById("otpSection").style.display = "block";
+    alert("OTP envoyé ✅");
 
   } catch (error) {
+    console.error(error);
     alert("Erreur envoi OTP ❌");
   }
 });
@@ -126,42 +114,23 @@ document.getElementById("verifyOtp").addEventListener("click", async () => {
     .map(input => input.value)
     .join("");
 
-  const email = document.getElementById("email").value;
-  const phone = iti.getNumber();
-
   try {
-    const res = await fetch("https://ton-backend.com/verify-otp", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ email, phone, otp })
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-      alert("Compte vérifié ✅");
-    } else {
-      alert("OTP incorrect ❌");
-    }
-
-  } catch {
-    alert("Erreur serveur ❌");
+    const result = await window.confirmationResult.confirm(otp);
+    const user = result.user;
+    alert("Compte vérifié ✅");
+  } catch (error) {
+    console.error(error);
+    alert("OTP incorrect ❌");
   }
 });
 
-// 🔹 OTP UX (auto + backspace)
+// 🔹 OTP UX (auto-focus et backspace)
 document.querySelectorAll(".otp-box").forEach((input, i, arr) => {
   input.addEventListener("input", () => {
-    if (input.value.length === 1 && i < arr.length - 1) {
-      arr[i + 1].focus();
-    }
+    if (input.value.length === 1 && i < arr.length - 1) arr[i + 1].focus();
   });
 
   input.addEventListener("keydown", (e) => {
-    if (e.key === "Backspace" && !input.value && i > 0) {
-      arr[i - 1].focus();
-    }
+    if (e.key === "Backspace" && !input.value && i > 0) arr[i - 1].focus();
   });
 });
