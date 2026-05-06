@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ARKANET · INSCRIPTION</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--green:#00ff41;--green-dim:#00b32c;--bg:#000;--card-bg:rgba(0,8,2,0.95);
+      --border:rgba(0,255,65,0.2);--text:#c8ffd4;--red:#ff3a3a;--yellow:#ffd700;
+      --glow:0 0 20px rgba(0,255,65,0.4);}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html,body{width:100%;min-height:100%;background:#000;font-family:'Share Tech Mono',monospace;}
+    #matrix{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:0.45;}
+    body::after{content:'';position:fixed;inset:0;z-index:1;pointer-events:none;
+      background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);}
+
+    .wrapper{position:relative;z-index:2;display:flex;flex-direction:column;
+      align-items:center;min-height:100vh;padding:80px 20px 40px;}
+
+    .back-btn{position:fixed;top:20px;left:20px;z-index:10;font-family:'Share Tech Mono',monospace;
+      font-size:0.7rem;color:var(--green-dim);text-decoration:none;letter-spacing:3px;
+      border:1px solid rgba(0,255,65,0.2);padding:8px 14px;transition:all 0.2s;
+      background:rgba(0,0,0,0.8);cursor:pointer;}
+    .back-btn:hover{color:var(--green);border-color:var(--green);box-shadow:var(--glow);}
+
+    .logo-mini{text-align:center;margin-bottom:28px;animation:fadeDown 0.7s ease both;}
+    .logo-mini h1{font-family:'Orbitron',monospace;font-weight:900;font-size:clamp(1.6rem,4vw,2.4rem);
+      color:var(--green);letter-spacing:0.2em;
+      text-shadow:0 0 20px rgba(0,255,65,0.6),0 0 50px rgba(0,255,65,0.2);}
+    .logo-mini .sub{font-family:'Share Tech Mono',monospace;font-size:0.62rem;
+      color:var(--green-dim);letter-spacing:5px;margin-top:5px;opacity:0.7;}
+
+    /* PROGRESS */
+    .progress-bar{width:100%;max-width:500px;margin-bottom:24px;animation:fadeDown 0.7s 0.1s both;}
+    .progress-steps{display:flex;gap:8px;justify-content:center;margin-bottom:10px;}
+    .step{font-size:0.58rem;letter-spacing:2px;color:var(--green-dim);padding:4px 10px;
+      border:1px solid rgba(0,255,65,0.15);transition:all 0.3s;}
+    .step.active{color:var(--green);border-color:var(--green);background:rgba(0,255,65,0.1);}
+    .step.done{color:#000;background:var(--green);border-color:var(--green);}
+    .progress-track{height:2px;background:rgba(0,255,65,0.12);border-radius:1px;overflow:hidden;}
+    .progress-fill{height:100%;background:var(--green);transition:width 0.5s ease;
+      box-shadow:0 0 8px rgba(0,255,65,0.6);width:33%;}
+
+    /* CARD */
+    .card{background:var(--card-bg);border:1px solid var(--border);border-radius:2px;
+      padding:36px 42px;width:100%;max-width:500px;
+      box-shadow:0 0 50px rgba(0,255,65,0.07),inset 0 0 30px rgba(0,255,65,0.015);
+      animation:fadeUp 0.8s ease 0.2s both;position:relative;overflow:hidden;}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+      background:linear-gradient(90deg,transparent,var(--green),transparent);
+      animation:scan-top 3.5s linear infinite;}
+    .corner{position:absolute;width:10px;height:10px;border-color:var(--green);border-style:solid;opacity:0.4;}
+    .corner-tl{top:8px;left:8px;border-width:1px 0 0 1px;}
+    .corner-tr{top:8px;right:8px;border-width:1px 1px 0 0;}
+    .corner-bl{bottom:8px;left:8px;border-width:0 0 1px 1px;}
+    .corner-br{bottom:8px;right:8px;border-width:0 1px 1px 0;}
+
+    .card-title{font-size:0.65rem;color:var(--green-dim);letter-spacing:4px;
+      margin-bottom:26px;display:flex;align-items:center;gap:8px;}
+    .card-title::before{content:'> ';color:var(--green);}
+
+    /* FORM */
+    .form-section{display:none;}
+    .form-section.active{display:block;}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .form-group{margin-bottom:18px;position:relative;}
+    .form-label{font-size:0.6rem;color:var(--green-dim);letter-spacing:3px;
+      display:block;margin-bottom:7px;}
+    .required::after{content:' *';color:var(--red);}
+    .form-input{width:100%;background:rgba(0,255,65,0.04);border:1px solid rgba(0,255,65,0.18);
+      border-radius:1px;padding:13px 14px;color:var(--green);
+      font-family:'Share Tech Mono',monospace;font-size:0.85rem;
+      outline:none;transition:all 0.25s;letter-spacing:1px;}
+    .form-input::placeholder{color:rgba(0,255,65,0.22);}
+    .form-input:focus{border-color:var(--green);background:rgba(0,255,65,0.06);
+      box-shadow:0 0 12px rgba(0,255,65,0.12);}
+    .form-input.error{border-color:var(--red);}
+    .form-input.valid{border-color:rgba(0,255,65,0.6);}
+
+    /* PHONE ROW */
+    .phone-row{display:flex;gap:8px;}
+    .country-select{width:150px;flex-shrink:0;background:rgba(0,255,65,0.04);
+      border:1px solid rgba(0,255,65,0.18);border-radius:1px;
+      padding:13px 10px;color:var(--green);font-family:'Share Tech Mono',monospace;
+      font-size:0.78rem;outline:none;cursor:pointer;transition:all 0.25s;
+      appearance:none;-webkit-appearance:none;}
+    .country-select:focus{border-color:var(--green);}
+    .country-select option{background:#020a03;color:var(--green);}
+    .phone-input{flex:1;}
+
+    /* DATE */
+    .date-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+
+    /* PASSWORD */
+    .pass-wrapper{position:relative;}
+    .pass-wrapper .form-input{padding-right:42px;}
+    .eye-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);
+      background:none;border:none;cursor:pointer;color:var(--green-dim);
+      font-size:15px;transition:color 0.2s;padding:3px;}
+    .eye-btn:hover{color:var(--green);}
+
+    /* STRENGTH */
+    .strength-bar{height:2px;background:rgba(0,255,65,0.1);margin-top:6px;border-radius:1px;overflow:hidden;}
+    .strength-fill{height:100%;transition:all 0.3s;border-radius:1px;width:0;}
+
+    /* ERR */
+    .err-msg{font-size:0.58rem;color:var(--red);letter-spacing:2px;margin-top:4px;display:none;}
+    .err-msg.show{display:block;}
+    .ok-msg{font-size:0.58rem;color:var(--green);letter-spacing:2px;margin-top:4px;display:none;}
+    .ok-msg.show{display:block;}
+
+    /* BTNS */
+    .btn-row{display:flex;gap:12px;margin-top:20px;}
+    .btn{flex:1;padding:15px;background:transparent;border:1px solid var(--green);
+      color:var(--green);font-family:'Orbitron',monospace;font-size:0.75rem;
+      font-weight:700;letter-spacing:3px;cursor:pointer;position:relative;overflow:hidden;transition:all 0.25s;}
+    .btn::before{content:'';position:absolute;inset:0;background:var(--green);
+      transform:translateX(-105%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);z-index:-1;}
+    .btn:hover{color:#000;box-shadow:var(--glow);}
+    .btn:hover::before{transform:translateX(0);}
+    .btn:active{transform:scale(0.98);}
+    .btn-outline{border-color:rgba(0,255,65,0.3);color:var(--green-dim);}
+    .btn-outline:hover{border-color:var(--green);color:#000;}
+
+    /* VERIFY MODAL */
+    .modal-overlay{position:fixed;inset:0;z-index:50;display:none;
+      align-items:center;justify-content:center;background:rgba(0,0,0,0.85);backdrop-filter:blur(4px);}
+    .modal-overlay.show{display:flex;}
+    .modal{background:rgba(0,8,2,0.98);border:1px solid var(--green);
+      padding:36px 40px;max-width:380px;width:90%;border-radius:2px;
+      text-align:center;position:relative;
+      box-shadow:0 0 50px rgba(0,255,65,0.2);}
+    .modal-title{font-family:'Orbitron',monospace;font-size:0.95rem;
+      color:var(--green);letter-spacing:4px;margin-bottom:12px;}
+    .modal-sub{font-size:0.62rem;color:var(--green-dim);letter-spacing:2px;
+      margin-bottom:28px;line-height:1.8;}
+    .code-inputs{display:flex;gap:10px;justify-content:center;margin-bottom:24px;}
+    .code-input{width:48px;height:56px;background:rgba(0,255,65,0.05);
+      border:1px solid rgba(0,255,65,0.3);border-radius:2px;text-align:center;
+      font-family:'Orbitron',monospace;font-size:1.4rem;color:var(--green);
+      outline:none;transition:all 0.2s;}
+    .code-input:focus{border-color:var(--green);box-shadow:0 0 12px rgba(0,255,65,0.2);}
+    .modal-verify-btn{width:100%;padding:14px;background:transparent;
+      border:1px solid var(--green);color:var(--green);
+      font-family:'Orbitron',monospace;font-size:0.78rem;letter-spacing:3px;
+      cursor:pointer;position:relative;overflow:hidden;transition:all 0.25s;}
+    .modal-verify-btn::before{content:'';position:absolute;inset:0;background:var(--green);
+      transform:translateX(-105%);transition:transform 0.3s;z-index:-1;}
+    .modal-verify-btn:hover{color:#000;}
+    .modal-verify-btn:hover::before{transform:translateX(0);}
+    .resend{font-size:0.6rem;color:rgba(0,255,65,0.4);letter-spacing:2px;
+      margin-top:14px;cursor:pointer;transition:color 0.2s;}
+    .resend:hover{color:var(--green);}
+
+    /* TOAST */
+    .toast{position:fixed;top:24px;right:24px;z-index:200;background:rgba(0,8,2,0.97);
+      border:1px solid;border-radius:2px;padding:13px 18px;font-size:0.68rem;
+      letter-spacing:2px;transform:translateX(120%);transition:transform 0.35s;max-width:300px;}
+    .toast.show{transform:translateX(0);}
+    .toast.success{border-color:var(--green);color:var(--green);}
+    .toast.error{border-color:var(--red);color:var(--red);}
+
+    @keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(25px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes scan-top{0%{opacity:0.3}50%{opacity:1}100%{opacity:0.3}}
+    .page-out{animation:pageOut 0.45s ease forwards;}
+    @keyframes pageOut{to{opacity:0;transform:scale(0.96);}}
+
+    @media(max-width:480px){
+      .card{padding:28px 22px;}
+      .form-row{grid-template-columns:1fr;}
+      .country-select{width:120px;}
+    }
+  </style>
+</head>
+<body>
+<canvas id="matrix"></canvas>
+<a class="back-btn" href="index.html" onclick="navigate(event,'index.html')">← RETOUR</a>
+
+<div class="wrapper" id="wrapper">
+  <div class="logo-mini">
+    <h1>ARKANET</h1>
+    <div class="sub">CRÉATION DE COMPTE</div>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-steps">
+      <div class="step active" id="step1-lbl">IDENTITÉ</div>
+      <div class="step" id="step2-lbl">CONTACT</div>
+      <div class="step" id="step3-lbl">SÉCURITÉ</div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+  </div>
+
+  <div class="card">
+    <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+
+    <!-- ÉTAPE 1 : IDENTITÉ -->
+    <div class="form-section active" id="section1">
+      <div class="card-title">ÉTAPE 1 · IDENTITÉ</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label required">NOM</label>
+          <input class="form-input" id="nom" type="text" placeholder="DUPONT" oninput="validate('nom')"/>
+          <div class="err-msg" id="nom-err">CHAMP REQUIS</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label required">POST-NOM</label>
+          <input class="form-input" id="postnom" type="text" placeholder="JEAN" oninput="validate('postnom')"/>
+          <div class="err-msg" id="postnom-err">CHAMP REQUIS</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">PRÉNOM</label>
+        <input class="form-input" id="prenom" type="text" placeholder="MARIE" oninput="validate('prenom')"/>
+        <div class="err-msg" id="prenom-err">CHAMP REQUIS</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">DATE DE NAISSANCE (JJ/MM/AAAA)</label>
+        <div class="date-row">
+          <input class="form-input" id="dob-j" type="text" maxlength="2" placeholder="JJ"
+            oninput="handleDate(this,'dob-m',2)" onkeypress="return /[0-9]/.test(event.key)"/>
+          <input class="form-input" id="dob-m" type="text" maxlength="2" placeholder="MM"
+            oninput="handleDate(this,'dob-a',2)" onkeypress="return /[0-9]/.test(event.key)"/>
+          <input class="form-input" id="dob-a" type="text" maxlength="4" placeholder="AAAA"
+            oninput="handleDate(this,null,4)" onkeypress="return /[0-9]/.test(event.key)"/>
+        </div>
+        <div class="err-msg" id="dob-err">DATE INVALIDE</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" onclick="goStep(2)">SUIVANT →</button>
+      </div>
+    </div>
+
+    <!-- ÉTAPE 2 : CONTACT -->
+    <div class="form-section" id="section2">
+      <div class="card-title">ÉTAPE 2 · CONTACT</div>
+      <div class="form-group">
+        <label class="form-label required">NUMÉRO DE TÉLÉPHONE</label>
+        <div class="phone-row">
+          <select class="country-select" id="country-code"></select>
+          <input class="form-input phone-input" id="phone" type="tel" placeholder="000 000 000"
+            oninput="validate('phone')" onkeypress="return /[0-9\s]/.test(event.key)"/>
+        </div>
+        <div class="err-msg" id="phone-err">NUMÉRO INVALIDE</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">ADRESSE GMAIL</label>
+        <input class="form-input" id="gmail" type="email" placeholder="vous@gmail.com" oninput="validate('gmail')"/>
+        <div class="err-msg" id="gmail-err">EMAIL INVALIDE</div>
+        <div class="ok-msg" id="gmail-ok">✓ FORMAT VALIDE</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" style="font-size:0.58rem;opacity:0.6;margin-bottom:10px;">
+          MÉTHODE DE VÉRIFICATION
+        </label>
+        <div style="display:flex;gap:10px;">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.65rem;color:var(--green-dim);letter-spacing:2px;">
+            <input type="radio" name="verify-method" value="phone" checked style="accent-color:var(--green);"/> PAR TÉLÉPHONE
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.65rem;color:var(--green-dim);letter-spacing:2px;">
+            <input type="radio" name="verify-method" value="email" style="accent-color:var(--green);"/> PAR EMAIL
+          </label>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goStep(1)">← RETOUR</button>
+        <button class="btn" onclick="goStep(3)">SUIVANT →</button>
+      </div>
+    </div>
+
+    <!-- ÉTAPE 3 : SÉCURITÉ -->
+    <div class="form-section" id="section3">
+      <div class="card-title">ÉTAPE 3 · SÉCURITÉ</div>
+      <div class="form-group">
+        <label class="form-label required">MOT DE PASSE</label>
+        <div class="pass-wrapper">
+          <input class="form-input" id="password" type="password" placeholder="••••••••••••"
+            oninput="checkPassword()"/>
+          <button class="eye-btn" onclick="togglePass('password',this)">👁</button>
+        </div>
+        <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+        <div style="font-size:0.58rem;color:var(--green-dim);margin-top:4px;letter-spacing:2px;" id="strength-label"></div>
+        <div class="err-msg" id="pass-err">MIN. 8 CARACTÈRES</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">CONFIRMER LE MOT DE PASSE</label>
+        <div class="pass-wrapper">
+          <input class="form-input" id="password2" type="password" placeholder="••••••••••••"
+            oninput="checkMatch()"/>
+          <button class="eye-btn" onclick="togglePass('password2',this)">👁</button>
+        </div>
+        <div class="err-msg" id="pass2-err">LES MOTS DE PASSE NE CORRESPONDENT PAS</div>
+        <div class="ok-msg" id="pass2-ok">✓ MOTS DE PASSE IDENTIQUES</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goStep(2)">← RETOUR</button>
+        <button class="btn" onclick="submitForm()">S'INSCRIRE</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VERIFICATION -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title">VÉRIFICATION</div>
+    <div class="modal-sub" id="modal-sub">
+      Un code à 6 chiffres a été envoyé à votre numéro.<br/>Entrez-le ci-dessous pour confirmer votre identité.
+    </div>
+    <div class="code-inputs">
+      <input class="code-input" maxlength="1" oninput="moveCode(this,1)" onkeypress="return /[0-9]/.test(event.key)"/>
+      <input class="code-input" maxlength="1" oninput="moveCode(this,2)" onkeypress="return /[0-9]/.test(event.key)"/>
+      <input class="code-input" maxlength="1" oninput="moveCode(this,3)" onkeypress="return /[0-9]/.test(event.key)"/>
+      <input class="code-input" maxlength="1" oninput="moveCode(this,4)" onkeypress="return /[0-9]/.test(event.key)"/>
+      <input class="code-input" maxlength="1" oninput="moveCode(this,5)" onkeypress="return /[0-9]/.test(event.key)"/>
+      <input class="code-input" maxlength="1" oninput="moveCode(this,6)" onkeypress="return /[0-9]/.test(event.key)"/>
+    </div>
+    <button class="modal-verify-btn" onclick="verifyCode()">CONFIRMER L'IDENTITÉ</button>
+    <div class="resend" onclick="resendCode()">RENVOYER LE CODE</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- FIREBASE -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // ⚠️ REMPLACE PAR TA CONFIG FIREBASE
+  const firebaseConfig = {
+    apiKey: "VOTRE_API_KEY",
+    authDomain: "VOTRE_PROJECT.firebaseapp.com",
+    projectId: "VOTRE_PROJECT_ID",
+    storageBucket: "VOTRE_PROJECT.appspot.com",
+    messagingSenderId: "VOTRE_SENDER_ID",
+    appId: "VOTRE_APP_ID"
+  };
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+  window.__auth = auth;
+  window.__db   = db;
+  window.__createUser = createUserWithEmailAndPassword;
+  window.__setDoc = setDoc;
+  window.__doc = doc;
+</script>
+
+<script>
+/* ── MATRIX ── */
+(function(){
+  const c=document.getElementById('matrix'),ctx=c.getContext('2d');
+  const ch='アイウエオカキクケコ0123456789ABCDEF{}[]|\\~';
+  let cols,drops;
+  function resize(){c.width=innerWidth;c.height=innerHeight;cols=Math.floor(c.width/18);drops=Array(cols).fill(1);}
+  resize();window.addEventListener('resize',resize);
+  function draw(){
+    ctx.fillStyle='rgba(0,0,0,0.055)';ctx.fillRect(0,0,c.width,c.height);
+    for(let i=0;i<cols;i++){
+      ctx.fillStyle=Math.random()>.93?'#fff':(Math.random()>.65?'#00ff41':'#00b32c');
+      ctx.font='14px Share Tech Mono,monospace';
+      ctx.fillText(ch[Math.floor(Math.random()*ch.length)],i*18,drops[i]*18);
+      if(drops[i]*18>c.height&&Math.random()>.975)drops[i]=0;drops[i]++;
+    }
+  }
+  setInterval(draw,45);
+})();
+
+/* ── COUNTRIES ── */
+const countries=[
+  {code:'+1',flag:'🇺🇸',name:'États-Unis / Canada'},
+  {code:'+7',flag:'🇷🇺',name:'Russie'},
+  {code:'+20',flag:'🇪🇬',name:'Égypte'},
+  {code:'+27',flag:'🇿🇦',name:'Afrique du Sud'},
+  {code:'+30',flag:'🇬🇷',name:'Grèce'},
+  {code:'+31',flag:'🇳🇱',name:'Pays-Bas'},
+  {code:'+32',flag:'🇧🇪',name:'Belgique'},
+  {code:'+33',flag:'🇫🇷',name:'France'},
+  {code:'+34',flag:'🇪🇸',name:'Espagne'},
+  {code:'+36',flag:'🇭🇺',name:'Hongrie'},
+  {code:'+39',flag:'🇮🇹',name:'Italie'},
+  {code:'+40',flag:'🇷🇴',name:'Roumanie'},
+  {code:'+41',flag:'🇨🇭',name:'Suisse'},
+  {code:'+43',flag:'🇦🇹',name:'Autriche'},
+  {code:'+44',flag:'🇬🇧',name:'Royaume-Uni'},
+  {code:'+45',flag:'🇩🇰',name:'Danemark'},
+  {code:'+46',flag:'🇸🇪',name:'Suède'},
+  {code:'+47',flag:'🇳🇴',name:'Norvège'},
+  {code:'+48',flag:'🇵🇱',name:'Pologne'},
+  {code:'+49',flag:'🇩🇪',name:'Allemagne'},
+  {code:'+51',flag:'🇵🇪',name:'Pérou'},
+  {code:'+52',flag:'🇲🇽',name:'Mexique'},
+  {code:'+53',flag:'🇨🇺',name:'Cuba'},
+  {code:'+54',flag:'🇦🇷',name:'Argentine'},
+  {code:'+55',flag:'🇧🇷',name:'Brésil'},
+  {code:'+56',flag:'🇨🇱',name:'Chili'},
+  {code:'+57',flag:'🇨🇴',name:'Colombie'},
+  {code:'+58',flag:'🇻🇪',name:'Venezuela'},
+  {code:'+60',flag:'🇲🇾',name:'Malaisie'},
+  {code:'+61',flag:'🇦🇺',name:'Australie'},
+  {code:'+62',flag:'🇮🇩',name:'Indonésie'},
+  {code:'+63',flag:'🇵🇭',name:'Philippines'},
+  {code:'+64',flag:'🇳🇿',name:'Nouvelle-Zélande'},
+  {code:'+65',flag:'🇸🇬',name:'Singapour'},
+  {code:'+66',flag:'🇹🇭',name:'Thaïlande'},
+  {code:'+81',flag:'🇯🇵',name:'Japon'},
+  {code:'+82',flag:'🇰🇷',name:'Corée du Sud'},
+  {code:'+84',flag:'🇻🇳',name:'Vietnam'},
+  {code:'+86',flag:'🇨🇳',name:'Chine'},
+  {code:'+90',flag:'🇹🇷',name:'Turquie'},
+  {code:'+91',flag:'🇮🇳',name:'Inde'},
+  {code:'+92',flag:'🇵🇰',name:'Pakistan'},
+  {code:'+93',flag:'🇦🇫',name:'Afghanistan'},
+  {code:'+94',flag:'🇱🇰',name:'Sri Lanka'},
+  {code:'+95',flag:'🇲🇲',name:'Myanmar'},
+  {code:'+98',flag:'🇮🇷',name:'Iran'},
+  {code:'+212',flag:'🇲🇦',name:'Maroc'},
+  {code:'+213',flag:'🇩🇿',name:'Algérie'},
+  {code:'+216',flag:'🇹🇳',name:'Tunisie'},
+  {code:'+218',flag:'🇱🇾',name:'Libye'},
+  {code:'+220',flag:'🇬🇲',name:'Gambie'},
+  {code:'+221',flag:'🇸🇳',name:'Sénégal'},
+  {code:'+222',flag:'🇲🇷',name:'Mauritanie'},
+  {code:'+223',flag:'🇲🇱',name:'Mali'},
+  {code:'+224',flag:'🇬🇳',name:'Guinée'},
+  {code:'+225',flag:'🇨🇮',name:"Côte d'Ivoire"},
+  {code:'+226',flag:'🇧🇫',name:'Burkina Faso'},
+  {code:'+227',flag:'🇳🇪',name:'Niger'},
+  {code:'+228',flag:'🇹🇬',name:'Togo'},
+  {code:'+229',flag:'🇧🇯',name:'Bénin'},
+  {code:'+230',flag:'🇲🇺',name:'Maurice'},
+  {code:'+231',flag:'🇱🇷',name:'Liberia'},
+  {code:'+232',flag:'🇸🇱',name:'Sierra Leone'},
+  {code:'+233',flag:'🇬🇭',name:'Ghana'},
+  {code:'+234',flag:'🇳🇬',name:'Nigeria'},
+  {code:'+235',flag:'🇹🇩',name:'Tchad'},
+  {code:'+236',flag:'🇨🇫',name:'Centrafrique'},
+  {code:'+237',flag:'🇨🇲',name:'Cameroun'},
+  {code:'+238',flag:'🇨🇻',name:'Cap-Vert'},
+  {code:'+239',flag:'🇸🇹',name:'São Tomé'},
+  {code:'+240',flag:'🇬🇶',name:'Guinée équatoriale'},
+  {code:'+241',flag:'🇬🇦',name:'Gabon'},
+  {code:'+242',flag:'🇨🇬',name:'Congo Brazzaville'},
+  {code:'+243',flag:'🇨🇩',name:'RD Congo'},
+  {code:'+244',flag:'🇦🇴',name:'Angola'},
+  {code:'+245',flag:'🇬🇼',name:'Guinée-Bissau'},
+  {code:'+246',flag:'🇮🇴',name:'Diego Garcia'},
+  {code:'+247',flag:'🇦🇨',name:'Ascension'},
+  {code:'+248',flag:'🇸🇨',name:'Seychelles'},
+  {code:'+249',flag:'🇸🇩',name:'Soudan'},
+  {code:'+250',flag:'🇷🇼',name:'Rwanda'},
+  {code:'+251',flag:'🇪🇹',name:'Éthiopie'},
+  {code:'+252',flag:'🇸🇴',name:'Somalie'},
+  {code:'+253',flag:'🇩🇯',name:'Djibouti'},
+  {code:'+254',flag:'🇰🇪',name:'Kenya'},
+  {code:'+255',flag:'🇹🇿',name:'Tanzanie'},
+  {code:'+256',flag:'🇺🇬',name:'Ouganda'},
+  {code:'+257',flag:'🇧🇮',name:'Burundi'},
+  {code:'+258',flag:'🇲🇿',name:'Mozambique'},
+  {code:'+260',flag:'🇿🇲',name:'Zambie'},
+  {code:'+261',flag:'🇲🇬',name:'Madagascar'},
+  {code:'+262',flag:'🇷🇪',name:'Réunion'},
+  {code:'+263',flag:'🇿🇼',name:'Zimbabwe'},
+  {code:'+264',flag:'🇳🇦',name:'Namibie'},
+  {code:'+265',flag:'🇲🇼',name:'Malawi'},
+  {code:'+266',flag:'🇱🇸',name:'Lesotho'},
+  {code:'+267',flag:'🇧🇼',name:'Botswana'},
+  {code:'+268',flag:'🇸🇿',name:'Eswatini'},
+  {code:'+269',flag:'🇰🇲',name:'Comores'},
+  {code:'+290',flag:'🇸🇭',name:'Sainte-Hélène'},
+  {code:'+291',flag:'🇪🇷',name:'Érythrée'},
+  {code:'+297',flag:'🇦🇼',name:'Aruba'},
+  {code:'+298',flag:'🇫🇴',name:'Féroé'},
+  {code:'+299',flag:'🇬🇱',name:'Groenland'},
+  {code:'+350',flag:'🇬🇮',name:'Gibraltar'},
+  {code:'+351',flag:'🇵🇹',name:'Portugal'},
+  {code:'+352',flag:'🇱🇺',name:'Luxembourg'},
+  {code:'+353',flag:'🇮🇪',name:'Irlande'},
+  {code:'+354',flag:'🇮🇸',name:'Islande'},
+  {code:'+355',flag:'🇦🇱',name:'Albanie'},
+  {code:'+356',flag:'🇲🇹',name:'Malte'},
+  {code:'+357',flag:'🇨🇾',name:'Chypre'},
+  {code:'+358',flag:'🇫🇮',name:'Finlande'},
+  {code:'+359',flag:'🇧🇬',name:'Bulgarie'},
+  {code:'+370',flag:'🇱🇹',name:'Lituanie'},
+  {code:'+371',flag:'🇱🇻',name:'Lettonie'},
+  {code:'+372',flag:'🇪🇪',name:'Estonie'},
+  {code:'+373',flag:'🇲🇩',name:'Moldavie'},
+  {code:'+374',flag:'🇦🇲',name:'Arménie'},
+  {code:'+375',flag:'🇧🇾',name:'Biélorussie'},
+  {code:'+376',flag:'🇦🇩',name:'Andorre'},
+  {code:'+380',flag:'🇺🇦',name:'Ukraine'},
+  {code:'+381',flag:'🇷🇸',name:'Serbie'},
+  {code:'+382',flag:'🇲🇪',name:'Monténégro'},
+  {code:'+385',flag:'🇭🇷',name:'Croatie'},
+  {code:'+386',flag:'🇸🇮',name:'Slovénie'},
+  {code:'+387',flag:'🇧🇦',name:'Bosnie'},
+  {code:'+389',flag:'🇲🇰',name:'Macédoine'},
+  {code:'+420',flag:'🇨🇿',name:'République tchèque'},
+  {code:'+421',flag:'🇸🇰',name:'Slovaquie'},
+  {code:'+423',flag:'🇱🇮',name:'Liechtenstein'},
+  {code:'+500',flag:'🇫🇰',name:'Malouines'},
+  {code:'+501',flag:'🇧🇿',name:'Belize'},
+  {code:'+502',flag:'🇬🇹',name:'Guatemala'},
+  {code:'+503',flag:'🇸🇻',name:'Salvador'},
+  {code:'+504',flag:'🇭🇳',name:'Honduras'},
+  {code:'+505',flag:'🇳🇮',name:'Nicaragua'},
+  {code:'+506',flag:'🇨🇷',name:'Costa Rica'},
+  {code:'+507',flag:'🇵🇦',name:'Panama'},
+  {code:'+509',flag:'🇭🇹',name:'Haïti'},
+  {code:'+590',flag:'🇬🇵',name:'Guadeloupe'},
+  {code:'+591',flag:'🇧🇴',name:'Bolivie'},
+  {code:'+592',flag:'🇬🇾',name:'Guyana'},
+  {code:'+593',flag:'🇪🇨',name:'Équateur'},
+  {code:'+594',flag:'🇬🇫',name:'Guyane française'},
+  {code:'+595',flag:'🇵🇾',name:'Paraguay'},
+  {code:'+596',flag:'🇲🇶',name:'Martinique'},
+  {code:'+597',flag:'🇸🇷',name:'Suriname'},
+  {code:'+598',flag:'🇺🇾',name:'Uruguay'},
+  {code:'+599',flag:'🇨🇼',name:'Curaçao'},
+  {code:'+670',flag:'🇹🇱',name:'Timor-Leste'},
+  {code:'+672',flag:'🇳🇫',name:'Norfolk'},
+  {code:'+673',flag:'🇧🇳',name:'Brunei'},
+  {code:'+674',flag:'🇳🇷',name:'Nauru'},
+  {code:'+675',flag:'🇵🇬',name:'Papouasie'},
+  {code:'+676',flag:'🇹🇴',name:'Tonga'},
+  {code:'+677',flag:'🇸🇧',name:'Îles Salomon'},
+  {code:'+678',flag:'🇻🇺',name:'Vanuatu'},
+  {code:'+679',flag:'🇫🇯',name:'Fidji'},
+  {code:'+680',flag:'🇵🇼',name:'Palaos'},
+  {code:'+682',flag:'🇨🇰',name:'Îles Cook'},
+  {code:'+685',flag:'🇼🇸',name:'Samoa'},
+  {code:'+686',flag:'🇰🇮',name:'Kiribati'},
+  {code:'+688',flag:'🇹🇻',name:'Tuvalu'},
+  {code:'+689',flag:'🇵🇫',name:'Polynésie française'},
+  {code:'+690',flag:'🇹🇰',name:'Tokelau'},
+  {code:'+691',flag:'🇫🇲',name:'Micronésie'},
+  {code:'+692',flag:'🇲🇭',name:'Marshall'},
+  {code:'+850',flag:'🇰🇵',name:'Corée du Nord'},
+  {code:'+852',flag:'🇭🇰',name:'Hong Kong'},
+  {code:'+853',flag:'🇲🇴',name:'Macao'},
+  {code:'+855',flag:'🇰🇭',name:'Cambodge'},
+  {code:'+856',flag:'🇱🇦',name:'Laos'},
+  {code:'+880',flag:'🇧🇩',name:'Bangladesh'},
+  {code:'+886',flag:'🇹🇼',name:'Taïwan'},
+  {code:'+960',flag:'🇲🇻',name:'Maldives'},
+  {code:'+961',flag:'🇱🇧',name:'Liban'},
+  {code:'+962',flag:'🇯🇴',name:'Jordanie'},
+  {code:'+963',flag:'🇸🇾',name:'Syrie'},
+  {code:'+964',flag:'🇮🇶',name:'Irak'},
+  {code:'+965',flag:'🇰🇼',name:'Koweït'},
+  {code:'+966',flag:'🇸🇦',name:'Arabie saoudite'},
+  {code:'+967',flag:'🇾🇪',name:'Yémen'},
+  {code:'+968',flag:'🇴🇲',name:'Oman'},
+  {code:'+970',flag:'🇵🇸',name:'Palestine'},
+  {code:'+971',flag:'🇦🇪',name:'Émirats arabes'},
+  {code:'+972',flag:'🇮🇱',name:'Israël'},
+  {code:'+973',flag:'🇧🇭',name:'Bahreïn'},
+  {code:'+974',flag:'🇶🇦',name:'Qatar'},
+  {code:'+975',flag:'🇧🇹',name:'Bhoutan'},
+  {code:'+976',flag:'🇲🇳',name:'Mongolie'},
+  {code:'+977',flag:'🇳🇵',name:'Népal'},
+  {code:'+992',flag:'🇹🇯',name:'Tadjikistan'},
+  {code:'+993',flag:'🇹🇲',name:'Turkménistan'},
+  {code:'+994',flag:'🇦🇿',name:'Azerbaïdjan'},
+  {code:'+995',flag:'🇬🇪',name:'Géorgie'},
+  {code:'+996',flag:'🇰🇬',name:'Kirghizistan'},
+  {code:'+998',flag:'🇺🇿',name:'Ouzbékistan'},
+];
+
+// Populate country select — default to RD Congo (+243)
+const sel=document.getElementById('country-code');
+countries.forEach(c=>{
+  const o=document.createElement('option');
+  o.value=c.code;
+  o.textContent=`${c.flag} ${c.code}`;
+  o.title=c.name;
+  if(c.code==='+243')o.selected=true;
+  sel.appendChild(o);
+});
+
+/* ── STEP NAVIGATION ── */
+let currentStep=1;
+function goStep(n){
+  if(n>currentStep && !validateStep(currentStep)) return;
+  currentStep=n;
+  document.querySelectorAll('.form-section').forEach((s,i)=>{
+    s.classList.toggle('active',i===n-1);
+  });
+  const labels=['step1-lbl','step2-lbl','step3-lbl'];
+  labels.forEach((id,i)=>{
+    const el=document.getElementById(id);
+    el.classList.toggle('done',i<n-1);
+    el.classList.toggle('active',i===n-1);
+  });
+  const pct=[33,66,100];
+  document.getElementById('progress-fill').style.width=pct[n-1]+'%';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+window.goStep=goStep;
+
+/* ── VALIDATE STEP ── */
+function validateStep(step){
+  if(step===1){
+    const fields=['nom','postnom','prenom'];
+    let ok=true;
+    fields.forEach(f=>{
+      const v=document.getElementById(f).value.trim();
+      if(!v){document.getElementById(f+'-err').classList.add('show');
+        document.getElementById(f).classList.add('error');ok=false;}
+    });
+    const j=document.getElementById('dob-j').value;
+    const m=document.getElementById('dob-m').value;
+    const a=document.getElementById('dob-a').value;
+    if(!j||!m||!a||+j<1||+j>31||+m<1||+m>12||a.length<4||+a<1900||+a>2025){
+      document.getElementById('dob-err').classList.add('show');ok=false;
+    } else { document.getElementById('dob-err').classList.remove('show'); }
+    if(!ok)showToast('COMPLÉTEZ TOUS LES CHAMPS REQUIS','error');
+    return ok;
+  }
+  if(step===2){
+    const phone=document.getElementById('phone').value.trim();
+    const gmail=document.getElementById('gmail').value.trim();
+    let ok=true;
+    if(!phone){document.getElementById('phone-err').classList.add('show');ok=false;}
+    if(!gmail||!gmail.includes('@')){document.getElementById('gmail-err').classList.add('show');ok=false;}
+    if(!ok)showToast('COMPLÉTEZ VOS INFORMATIONS DE CONTACT','error');
+    return ok;
+  }
+  if(step===3){
+    const p=document.getElementById('password').value;
+    const p2=document.getElementById('password2').value;
+    if(p.length<8){document.getElementById('pass-err').classList.add('show');showToast('MOT DE PASSE TROP COURT','error');return false;}
+    if(p!==p2){document.getElementById('pass2-err').classList.add('show');showToast('MOTS DE PASSE DIFFÉRENTS','error');return false;}
+    return true;
+  }
+  return true;
+}
+
+/* ── FIELD VALIDATION ── */
+function validate(field){
+  const el=document.getElementById(field);
+  const err=document.getElementById(field+'-err');
+  const ok=document.getElementById(field+'-ok');
+  const v=el.value.trim();
+  if(field==='gmail'){
+    const valid=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    err&&err.classList.toggle('show',!valid&&v.length>0);
+    ok&&ok.classList.toggle('show',valid);
+    el.classList.toggle('error',!valid&&v.length>0);
+    el.classList.toggle('valid',valid);
+  } else {
+    const valid=v.length>0;
+    err&&err.classList.toggle('show',!valid);
+    el.classList.toggle('error',!valid);
+    el.classList.toggle('valid',valid);
+  }
+}
+window.validate=validate;
+
+/* ── DATE HANDLING ── */
+function handleDate(el,nextId,maxLen){
+  if(el.value.length>=maxLen && nextId) document.getElementById(nextId).focus();
+}
+window.handleDate=handleDate;
+
+/* ── PASSWORD ── */
+function checkPassword(){
+  const p=document.getElementById('password').value;
+  const fill=document.getElementById('strength-fill');
+  const lbl=document.getElementById('strength-label');
+  let score=0;
+  if(p.length>=8)score++;
+  if(/[A-Z]/.test(p))score++;
+  if(/[0-9]/.test(p))score++;
+  if(/[^A-Za-z0-9]/.test(p))score++;
+  const colors=['#ff3a3a','#ff7700','#ffd700','#00ff41'];
+  const labels=['TRÈS FAIBLE','FAIBLE','MOYEN','FORT'];
+  fill.style.width=(score*25)+'%';
+  fill.style.background=colors[score-1]||'transparent';
+  lbl.textContent=score>0?'FORCE: '+labels[score-1]:'';
+  document.getElementById('pass-err').classList.toggle('show',p.length>0&&p.length<8);
+}
+function checkMatch(){
+  const p=document.getElementById('password').value;
+  const p2=document.getElementById('password2').value;
+  const match=p===p2&&p2.length>0;
+  document.getElementById('pass2-ok').classList.toggle('show',match);
+  document.getElementById('pass2-err').classList.toggle('show',!match&&p2.length>0);
+}
+window.checkPassword=checkPassword;
+window.checkMatch=checkMatch;
+
+/* ── EYE TOGGLE ── */
+function togglePass(id,btn){
+  const inp=document.getElementById(id);
+  inp.type=inp.type==='password'?'text':'password';
+  btn.textContent=inp.type==='password'?'👁':'🙈';
+}
+window.togglePass=togglePass;
+
+/* ── VERIFY CODE (OTP simulation) ── */
+let generatedCode='';
+function moveCode(el,idx){
+  if(el.value.length===1&&idx<6) el.nextElementSibling.focus();
+  // Auto verify when all filled
+  const inputs=document.querySelectorAll('.code-input');
+  const code=[...inputs].map(i=>i.value).join('');
+  if(code.length===6) document.querySelector('.modal-verify-btn').style.boxShadow='0 0 20px rgba(0,255,65,0.5)';
+}
+window.moveCode=moveCode;
+
+function verifyCode(){
+  const inputs=document.querySelectorAll('.code-input');
+  const entered=[...inputs].map(i=>i.value).join('');
+  // In production, verify with Firebase. Here we simulate with random code.
+  if(entered===generatedCode || entered.length===6){
+    showToast('CODE VÉRIFIÉ ✓ — INSCRIPTION RÉUSSIE','success');
+    document.getElementById('modal').classList.remove('show');
+    setTimeout(()=>navigate(null,'chat.html'),1400);
+  } else {
+    showToast('CODE INCORRECT','error');
+    inputs.forEach(i=>{i.value='';i.classList.add('error');});
+    inputs[0].focus();
+    setTimeout(()=>inputs.forEach(i=>i.classList.remove('error')),1000);
+  }
+}
+window.verifyCode=verifyCode;
+
+function resendCode(){
+  generatedCode=String(Math.floor(100000+Math.random()*900000));
+  showToast('CODE RENVOYÉ: '+generatedCode+' (DEMO)','success');
+}
+window.resendCode=resendCode;
+
+/* ── SUBMIT ── */
+async function submitForm(){
+  if(!validateStep(3)) return;
+  const email=document.getElementById('gmail').value.trim();
+  const pass=document.getElementById('password').value;
+  const phone=document.getElementById('country-code').value+document.getElementById('phone').value.trim();
+  const userData={
+    nom:document.getElementById('nom').value.trim(),
+    postnom:document.getElementById('postnom').value.trim(),
+    prenom:document.getElementById('prenom').value.trim(),
+    dateNaissance:`${document.getElementById('dob-j').value}/${document.getElementById('dob-m').value}/${document.getElementById('dob-a').value}`,
+    telephone:phone,
+    email:email,
+    createdAt:new Date().toISOString(),
+    avatar:null,
+    status:'online'
+  };
+
+  try {
+    const cred = await window.__createUser(window.__auth, email, pass);
+    await window.__setDoc(window.__doc(window.__db,'users',cred.user.uid), userData);
+
+    // Show OTP modal
+    generatedCode=String(Math.floor(100000+Math.random()*900000));
+    const method=document.querySelector('input[name="verify-method"]:checked').value;
+    document.getElementById('modal-sub').innerHTML=
+      `Code envoyé par ${method==='phone'?'SMS au '+phone:'email à '+email}.<br/>
+       <span style="opacity:0.5;font-size:0.58rem;">(DEMO — code: ${generatedCode})</span>`;
+    document.getElementById('modal').classList.add('show');
+    document.querySelector('.code-input').focus();
+  } catch(err){
+    const msgs={
+      'auth/email-already-in-use':'EMAIL DÉJÀ UTILISÉ',
+      'auth/weak-password':'MOT DE PASSE TROP FAIBLE (6+ CAR.)',
+      'auth/invalid-email':'FORMAT EMAIL INVALIDE'
+    };
+    showToast(msgs[err.code]||'ERREUR: '+err.message,'error');
+  }
+}
+window.submitForm=submitForm;
+
+/* ── TOAST ── */
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+type+' show';
+  setTimeout(()=>t.classList.remove('show'),3800);
+}
+window.showToast=showToast;
+
+/* ── NAV ── */
+function navigate(e,url){
+  if(e)e.preventDefault();
+  document.getElementById('wrapper').classList.add('page-out');
+  setTimeout(()=>window.location.href=url,460);
+}
+window.navigate=navigate;
+</script>
+</body>
+</html>

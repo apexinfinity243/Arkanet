@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ARKANET</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --green: #00ff41;
+      --green-dim: #00b32c;
+      --green-dark: #003b0f;
+      --bg: #000000;
+      --card-bg: rgba(0, 10, 2, 0.92);
+      --border: rgba(0,255,65,0.25);
+      --text: #c8ffd4;
+      --glow: 0 0 20px rgba(0,255,65,0.4);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+
+    /* ── MATRIX CANVAS ── */
+    #matrix { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.55; }
+
+    /* ── SCANLINE OVERLAY ── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 1; pointer-events: none;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
+    }
+
+    /* ── MAIN CONTAINER ── */
+    .wrapper {
+      position: relative; z-index: 2;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      height: 100vh; gap: 0;
+      padding: 20px;
+    }
+
+    /* ── LOGO ── */
+    .logo-block { text-align: center; margin-bottom: 48px; animation: fadeDown 0.8s ease both; }
+    .logo-block .logo-icon {
+      font-size: 14px; color: var(--green); font-family: 'Share Tech Mono', monospace;
+      opacity: 0.7; letter-spacing: 4px; margin-bottom: 10px;
+    }
+    .logo-block h1 {
+      font-family: 'Orbitron', monospace; font-weight: 900;
+      font-size: clamp(2.8rem, 8vw, 5.5rem);
+      color: var(--green);
+      letter-spacing: 0.18em;
+      text-shadow: 0 0 30px rgba(0,255,65,0.7), 0 0 60px rgba(0,255,65,0.3), 0 0 100px rgba(0,255,65,0.15);
+      animation: pulse-logo 3s ease-in-out infinite;
+    }
+    .logo-block .tagline {
+      font-family: 'Share Tech Mono', monospace; font-size: 0.75rem;
+      color: var(--green-dim); letter-spacing: 6px; margin-top: 8px;
+      opacity: 0.8;
+    }
+
+    /* ── TERMINAL BORDER CARD ── */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 40px 48px;
+      width: 100%; max-width: 440px;
+      box-shadow: 0 0 40px rgba(0,255,65,0.1), inset 0 0 40px rgba(0,255,65,0.02);
+      animation: fadeUp 0.9s ease 0.2s both;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--green), transparent);
+      animation: scan-top 4s linear infinite;
+    }
+    .card-title {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem; color: var(--green-dim);
+      letter-spacing: 4px; margin-bottom: 32px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .card-title::before { content: '> '; color: var(--green); }
+
+    /* ── BUTTONS ── */
+    .btn-group { display: flex; flex-direction: column; gap: 16px; }
+    .btn {
+      position: relative; display: block; width: 100%;
+      padding: 18px 24px;
+      background: transparent;
+      border: 1px solid var(--green-dim);
+      color: var(--green);
+      font-family: 'Orbitron', monospace; font-size: 0.85rem;
+      font-weight: 700; letter-spacing: 4px;
+      text-align: center; text-decoration: none; cursor: pointer;
+      transition: all 0.25s ease;
+      overflow: hidden;
+    }
+    .btn::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: var(--green);
+      transform: translateX(-105%);
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+      z-index: -1;
+    }
+    .btn:hover { color: #000; border-color: var(--green); box-shadow: var(--glow); }
+    .btn:hover::before { transform: translateX(0); }
+    .btn:active { transform: scale(0.98); }
+    .btn-secondary {
+      border-color: rgba(0,255,65,0.3);
+      color: var(--green-dim);
+    }
+    .btn-secondary:hover { color: #000; border-color: var(--green); }
+
+    .btn-label-sub {
+      display: block; font-family: 'Share Tech Mono', monospace;
+      font-size: 0.62rem; font-weight: 400;
+      letter-spacing: 2px; opacity: 0.7; margin-top: 3px;
+    }
+
+    /* ── STATUS BAR ── */
+    .status-bar {
+      margin-top: 36px;
+      font-family: 'Share Tech Mono', monospace; font-size: 0.62rem;
+      color: var(--green-dim); text-align: center; opacity: 0.6;
+      letter-spacing: 2px;
+      animation: blink-cursor 1.2s step-end infinite;
+    }
+
+    /* ── CORNER DECORATIONS ── */
+    .corner { position: absolute; width: 12px; height: 12px; border-color: var(--green); border-style: solid; opacity: 0.5; }
+    .corner-tl { top: 8px; left: 8px; border-width: 1px 0 0 1px; }
+    .corner-tr { top: 8px; right: 8px; border-width: 1px 1px 0 0; }
+    .corner-bl { bottom: 8px; left: 8px; border-width: 0 0 1px 1px; }
+    .corner-br { bottom: 8px; right: 8px; border-width: 0 1px 1px 0; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeDown { from { opacity:0; transform:translateY(-30px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeUp   { from { opacity:0; transform:translateY(30px);  } to { opacity:1; transform:translateY(0); } }
+    @keyframes pulse-logo {
+      0%,100% { text-shadow: 0 0 30px rgba(0,255,65,0.7), 0 0 60px rgba(0,255,65,0.3); }
+      50%      { text-shadow: 0 0 50px rgba(0,255,65,0.9), 0 0 100px rgba(0,255,65,0.5), 0 0 140px rgba(0,255,65,0.2); }
+    }
+    @keyframes scan-top { 0%{opacity:0.3} 50%{opacity:1} 100%{opacity:0.3} }
+    @keyframes blink-cursor { 0%,100%{opacity:0.6} 50%{opacity:0.2} }
+
+    /* ── PAGE TRANSITION ── */
+    .page-out { animation: pageOut 0.5s ease forwards; }
+    @keyframes pageOut { to { opacity:0; transform: scale(0.96); } }
+  </style>
+</head>
+<body>
+  <canvas id="matrix"></canvas>
+
+  <div class="wrapper" id="wrapper">
+    <div class="logo-block">
+      <div class="logo-icon">[ SYSTÈME SÉCURISÉ ]</div>
+      <h1>ARKANET</h1>
+      <div class="tagline">RÉSEAU · CRYPTÉ · GLOBAL</div>
+    </div>
+
+    <div class="card">
+      <div class="corner corner-tl"></div>
+      <div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div>
+      <div class="corner corner-br"></div>
+
+      <div class="card-title">ACCÈS AU RÉSEAU</div>
+
+      <div class="btn-group">
+        <a class="btn" href="login.html" onclick="navigate(event, 'login.html')">
+          CONNEXION
+          <span class="btn-label-sub">Déjà membre du réseau</span>
+        </a>
+        <a class="btn btn-secondary" href="register.html" onclick="navigate(event, 'register.html')">
+          INSCRIPTION
+          <span class="btn-label-sub">Rejoindre Arkanet</span>
+        </a>
+      </div>
+
+      <div class="status-bar" id="status">SYSTÈME EN LIGNE · CONNEXIONS CHIFFRÉES AES-256 ▌</div>
+    </div>
+  </div>
+
+  <script>
+    /* ── MATRIX RAIN ── */
+    (function(){
+      const canvas = document.getElementById('matrix');
+      const ctx = canvas.getContext('2d');
+      const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEF<>{}[]|/\\~`';
+      let cols, drops;
+
+      function resize(){
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+        cols  = Math.floor(canvas.width / 18);
+        drops = Array(cols).fill(1);
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      function draw(){
+        ctx.fillStyle = 'rgba(0,0,0,0.05)';
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+        for(let i=0; i<cols; i++){
+          const bright = Math.random() > 0.95;
+          ctx.fillStyle = bright ? '#ffffff' : (Math.random() > 0.7 ? '#00ff41' : '#00b32c');
+          ctx.font = `${Math.random()>0.9?16:14}px 'Share Tech Mono', monospace`;
+          ctx.fillText(chars[Math.floor(Math.random()*chars.length)], i*18, drops[i]*18);
+          if(drops[i]*18 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+          drops[i]++;
+        }
+      }
+      setInterval(draw, 45);
+    })();
+
+    /* ── STATUS MESSAGES ── */
+    const msgs = [
+      'SYSTÈME EN LIGNE · CONNEXIONS CHIFFRÉES AES-256 ▌',
+      'ARKANET v3.7.1 · NŒUDS ACTIFS: 1,247 ▌',
+      'PROTOCOLE SÉCURISÉ ÉTABLI · EN ATTENTE D\'AUTHENTIFICATION ▌',
+      'TRAFIC CHIFFRÉ · ANONYMAT GARANTI ▌',
+      'BIENVENUE SUR ARKANET · RÉSEAU GLOBAL SÉCURISÉ ▌'
+    ];
+    let mi = 0;
+    setInterval(()=>{ document.getElementById('status').textContent = msgs[++mi%msgs.length]; }, 3000);
+
+    /* ── SMOOTH NAVIGATION ── */
+    function navigate(e, url){
+      e.preventDefault();
+      document.getElementById('wrapper').classList.add('page-out');
+      setTimeout(()=>{ window.location.href = url; }, 480);
+    }
+  </script>
+</body>
+</html>
