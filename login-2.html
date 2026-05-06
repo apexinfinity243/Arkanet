@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ARKANET · CONNEXION</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --green: #00ff41; --green-dim: #00b32c; --bg: #000;
+      --card-bg: rgba(0,8,2,0.94); --border: rgba(0,255,65,0.22);
+      --text: #c8ffd4; --red: #ff3a3a; --glow: 0 0 20px rgba(0,255,65,0.4);
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html,body{width:100%;height:100%;overflow:hidden;background:#000;}
+    #matrix{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:0.5;}
+    body::after{content:'';position:fixed;inset:0;z-index:1;pointer-events:none;
+      background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);}
+
+    .wrapper{position:relative;z-index:2;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;min-height:100vh;padding:20px;gap:0;}
+
+    /* BACK */
+    .back-btn{position:fixed;top:20px;left:20px;z-index:10;
+      font-family:'Share Tech Mono',monospace;font-size:0.7rem;
+      color:var(--green-dim);text-decoration:none;letter-spacing:3px;
+      border:1px solid rgba(0,255,65,0.2);padding:8px 14px;
+      transition:all 0.2s;cursor:pointer;background:rgba(0,0,0,0.7);}
+    .back-btn:hover{color:var(--green);border-color:var(--green);box-shadow:var(--glow);}
+
+    /* LOGO MINI */
+    .logo-mini{text-align:center;margin-bottom:32px;animation:fadeDown 0.7s ease both;}
+    .logo-mini h1{font-family:'Orbitron',monospace;font-weight:900;font-size:clamp(1.8rem,5vw,2.8rem);
+      color:var(--green);letter-spacing:0.2em;
+      text-shadow:0 0 20px rgba(0,255,65,0.6),0 0 50px rgba(0,255,65,0.2);}
+    .logo-mini .sub{font-family:'Share Tech Mono',monospace;font-size:0.65rem;
+      color:var(--green-dim);letter-spacing:5px;margin-top:5px;opacity:0.7;}
+
+    /* CARD */
+    .card{background:var(--card-bg);border:1px solid var(--border);border-radius:2px;
+      padding:38px 44px;width:100%;max-width:430px;
+      box-shadow:0 0 50px rgba(0,255,65,0.08),inset 0 0 30px rgba(0,255,65,0.02);
+      animation:fadeUp 0.8s ease 0.15s both;position:relative;overflow:hidden;}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+      background:linear-gradient(90deg,transparent,var(--green),transparent);
+      animation:scan-top 3.5s linear infinite;}
+
+    .corner{position:absolute;width:10px;height:10px;border-color:var(--green);border-style:solid;opacity:0.45;}
+    .corner-tl{top:8px;left:8px;border-width:1px 0 0 1px;}
+    .corner-tr{top:8px;right:8px;border-width:1px 1px 0 0;}
+    .corner-bl{bottom:8px;left:8px;border-width:0 0 1px 1px;}
+    .corner-br{bottom:8px;right:8px;border-width:0 1px 1px 0;}
+
+    .card-title{font-family:'Share Tech Mono',monospace;font-size:0.68rem;
+      color:var(--green-dim);letter-spacing:4px;margin-bottom:28px;display:flex;align-items:center;gap:8px;}
+    .card-title::before{content:'> ';color:var(--green);}
+
+    /* TAB SWITCHER */
+    .tabs{display:flex;gap:0;margin-bottom:28px;border:1px solid rgba(0,255,65,0.2);}
+    .tab{flex:1;padding:10px;text-align:center;font-family:'Share Tech Mono',monospace;
+      font-size:0.65rem;letter-spacing:3px;cursor:pointer;color:var(--green-dim);
+      background:transparent;border:none;transition:all 0.25s;}
+    .tab.active{background:rgba(0,255,65,0.12);color:var(--green);}
+    .tab:hover:not(.active){background:rgba(0,255,65,0.05);color:var(--green);}
+
+    /* FORM */
+    .form-group{margin-bottom:20px;position:relative;}
+    .form-label{font-family:'Share Tech Mono',monospace;font-size:0.62rem;
+      color:var(--green-dim);letter-spacing:3px;display:block;margin-bottom:8px;}
+    .form-input{width:100%;background:rgba(0,255,65,0.04);
+      border:1px solid rgba(0,255,65,0.2);border-radius:1px;
+      padding:14px 16px;color:var(--green);font-family:'Share Tech Mono',monospace;
+      font-size:0.88rem;outline:none;transition:all 0.25s;letter-spacing:1px;}
+    .form-input::placeholder{color:rgba(0,255,65,0.25);}
+    .form-input:focus{border-color:var(--green);background:rgba(0,255,65,0.07);
+      box-shadow:0 0 15px rgba(0,255,65,0.15);}
+    .form-input.error{border-color:var(--red);box-shadow:0 0 10px rgba(255,58,58,0.2);}
+
+    /* PASSWORD EYE */
+    .pass-wrapper{position:relative;}
+    .pass-wrapper .form-input{padding-right:44px;}
+    .eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);
+      background:none;border:none;cursor:pointer;color:var(--green-dim);
+      font-size:16px;transition:color 0.2s;padding:4px;}
+    .eye-btn:hover{color:var(--green);}
+
+    /* ERROR MSG */
+    .err-msg{font-family:'Share Tech Mono',monospace;font-size:0.6rem;
+      color:var(--red);letter-spacing:2px;margin-top:5px;display:none;}
+    .err-msg.show{display:block;}
+
+    /* FORGOT */
+    .forgot{text-align:right;margin-top:-12px;margin-bottom:20px;}
+    .forgot a{font-family:'Share Tech Mono',monospace;font-size:0.6rem;
+      color:rgba(0,255,65,0.4);letter-spacing:2px;text-decoration:none;transition:color 0.2s;}
+    .forgot a:hover{color:var(--green);}
+
+    /* SUBMIT BTN */
+    .btn-submit{width:100%;padding:16px;background:transparent;
+      border:1px solid var(--green);color:var(--green);
+      font-family:'Orbitron',monospace;font-size:0.8rem;font-weight:700;
+      letter-spacing:4px;cursor:pointer;position:relative;overflow:hidden;
+      transition:all 0.25s;margin-top:8px;}
+    .btn-submit::before{content:'';position:absolute;inset:0;
+      background:var(--green);transform:translateX(-105%);
+      transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);z-index:-1;}
+    .btn-submit:hover{color:#000;box-shadow:var(--glow);}
+    .btn-submit:hover::before{transform:translateX(0);}
+    .btn-submit:active{transform:scale(0.98);}
+    .btn-submit.loading{opacity:0.6;pointer-events:none;}
+
+    /* LOADER */
+    .loader{display:none;text-align:center;margin-top:14px;
+      font-family:'Share Tech Mono',monospace;font-size:0.65rem;
+      color:var(--green);letter-spacing:3px;animation:blink 1s step-end infinite;}
+    .loader.show{display:block;}
+
+    /* DIVIDER */
+    .divider{display:flex;align-items:center;gap:12px;margin:22px 0;opacity:0.4;}
+    .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--green-dim);}
+    .divider span{font-family:'Share Tech Mono',monospace;font-size:0.6rem;
+      color:var(--green-dim);letter-spacing:2px;}
+
+    /* REGISTER LINK */
+    .register-link{text-align:center;margin-top:20px;
+      font-family:'Share Tech Mono',monospace;font-size:0.62rem;
+      color:rgba(0,255,65,0.4);letter-spacing:2px;}
+    .register-link a{color:var(--green);text-decoration:none;transition:opacity 0.2s;}
+    .register-link a:hover{opacity:0.7;}
+
+    /* TOAST */
+    .toast{position:fixed;top:24px;right:24px;z-index:100;
+      background:rgba(0,8,2,0.96);border:1px solid;border-radius:2px;
+      padding:14px 20px;font-family:'Share Tech Mono',monospace;font-size:0.7rem;
+      letter-spacing:2px;transform:translateX(120%);transition:transform 0.35s ease;max-width:320px;}
+    .toast.show{transform:translateX(0);}
+    .toast.success{border-color:var(--green);color:var(--green);}
+    .toast.error{border-color:var(--red);color:var(--red);}
+
+    @keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(25px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes scan-top{0%{opacity:0.3}50%{opacity:1}100%{opacity:0.3}}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+    .page-out{animation:pageOut 0.45s ease forwards;}
+    @keyframes pageOut{to{opacity:0;transform:scale(0.96);}}
+  </style>
+</head>
+<body>
+<canvas id="matrix"></canvas>
+
+<a class="back-btn" href="index.html" onclick="navigate(event,'index.html')">← RETOUR</a>
+
+<div class="wrapper" id="wrapper">
+  <div class="logo-mini">
+    <h1>ARKANET</h1>
+    <div class="sub">AUTHENTIFICATION REQUISE</div>
+  </div>
+
+  <div class="card">
+    <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+
+    <div class="card-title">CONNEXION AU RÉSEAU</div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('phone')">📱 NUMÉRO</button>
+      <button class="tab" onclick="switchTab('email')">✉️ GMAIL</button>
+    </div>
+
+    <!-- PHONE FORM -->
+    <div id="form-phone">
+      <div class="form-group">
+        <label class="form-label">NUMÉRO DE TÉLÉPHONE</label>
+        <input class="form-input" id="phone-input" type="tel" placeholder="+243 000 000 000" autocomplete="off"/>
+        <div class="err-msg" id="phone-err">FORMAT INVALIDE</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">MOT DE PASSE</label>
+        <div class="pass-wrapper">
+          <input class="form-input" id="phone-pass" type="password" placeholder="••••••••••••" autocomplete="current-password"/>
+          <button class="eye-btn" onclick="togglePass('phone-pass',this)">👁</button>
+        </div>
+      </div>
+      <div class="forgot"><a href="#">MOT DE PASSE OUBLIÉ ?</a></div>
+      <button class="btn-submit" onclick="handleLogin('phone')">ACCÉDER AU RÉSEAU</button>
+    </div>
+
+    <!-- EMAIL FORM -->
+    <div id="form-email" style="display:none;">
+      <div class="form-group">
+        <label class="form-label">ADRESSE GMAIL</label>
+        <input class="form-input" id="email-input" type="email" placeholder="utilisateur@gmail.com" autocomplete="off"/>
+        <div class="err-msg" id="email-err">EMAIL INVALIDE</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">MOT DE PASSE</label>
+        <div class="pass-wrapper">
+          <input class="form-input" id="email-pass" type="password" placeholder="••••••••••••" autocomplete="current-password"/>
+          <button class="eye-btn" onclick="togglePass('email-pass',this)">👁</button>
+        </div>
+      </div>
+      <div class="forgot"><a href="#">MOT DE PASSE OUBLIÉ ?</a></div>
+      <button class="btn-submit" onclick="handleLogin('email')">ACCÉDER AU RÉSEAU</button>
+    </div>
+
+    <div class="loader" id="loader">AUTHENTIFICATION EN COURS...</div>
+
+    <div class="divider"><span>OU</span></div>
+    <div class="register-link">
+      PAS ENCORE MEMBRE ? <a href="register.html" onclick="navigate(event,'register.html')">S'INSCRIRE</a>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- FIREBASE SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+  // ⚠️  REMPLACE CES VALEURS PAR TA CONFIG FIREBASE
+  const firebaseConfig = {
+    apiKey: "AIzaSyCIVvhhtH-gMnl70J0SDiCKoMe3iJRJnLc",
+    authDomain: "arkanet-2003.firebaseapp.com",
+    projectId: "arkanet-2003",
+    storageBucket: "arkanet-2003.firebasestorage.app",
+    messagingSenderId: "231954418325",
+    appId: "1:231954418325:web:44060a035dc4c9293a299c"
+  };
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  window.__auth = auth;
+  window.__signIn = signInWithEmailAndPassword;
+</script>
+
+<script>
+  /* ── MATRIX ── */
+  (function(){
+    const c=document.getElementById('matrix'),ctx=c.getContext('2d');
+    const ch='アイウエオカキクケコ0123456789ABCDEF{}[]|\\~';
+    let cols,drops;
+    function resize(){c.width=innerWidth;c.height=innerHeight;cols=Math.floor(c.width/18);drops=Array(cols).fill(1);}
+    resize();window.addEventListener('resize',resize);
+    function draw(){
+      ctx.fillStyle='rgba(0,0,0,0.055)';ctx.fillRect(0,0,c.width,c.height);
+      for(let i=0;i<cols;i++){
+        ctx.fillStyle=Math.random()>.92?'#fff':(Math.random()>.65?'#00ff41':'#00b32c');
+        ctx.font='14px Share Tech Mono,monospace';
+        ctx.fillText(ch[Math.floor(Math.random()*ch.length)],i*18,drops[i]*18);
+        if(drops[i]*18>c.height&&Math.random()>.975)drops[i]=0;drops[i]++;
+      }
+    }
+    setInterval(draw,45);
+  })();
+
+  /* ── TAB SWITCH ── */
+  let activeTab='phone';
+  function switchTab(t){
+    activeTab=t;
+    document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',i===(t==='phone'?0:1)));
+    document.getElementById('form-phone').style.display=t==='phone'?'block':'none';
+    document.getElementById('form-email').style.display=t==='email'?'block':'none';
+  }
+
+  /* ── EYE TOGGLE ── */
+  function togglePass(id,btn){
+    const inp=document.getElementById(id);
+    const isPass=inp.type==='password';
+    inp.type=isPass?'text':'password';
+    btn.textContent=isPass?'🙈':'👁';
+  }
+
+  /* ── TOAST ── */
+  function showToast(msg,type='success'){
+    const t=document.getElementById('toast');
+    t.textContent=msg;t.className='toast '+type+' show';
+    setTimeout(()=>t.classList.remove('show'),3500);
+  }
+
+  /* ── LOGIN ── */
+  async function handleLogin(mode){
+    const loader=document.getElementById('loader');
+    let identifier,pass;
+    if(mode==='phone'){
+      identifier=document.getElementById('phone-input').value.trim();
+      pass=document.getElementById('phone-pass').value;
+      if(!identifier){showToast('ENTREZ VOTRE NUMÉRO','error');return;}
+    } else {
+      identifier=document.getElementById('email-input').value.trim();
+      pass=document.getElementById('email-pass').value;
+      if(!identifier||!identifier.includes('@')){
+        document.getElementById('email-err').classList.add('show');
+        showToast('EMAIL INVALIDE','error');return;
+      }
+    }
+    if(!pass){showToast('MOT DE PASSE REQUIS','error');return;}
+    loader.classList.add('show');
+
+    try {
+      // Pour connexion par numéro, on utilise email=numero@arkanet.app (convention)
+      const emailToUse = mode==='phone' ? identifier.replace(/\s/g,'')+'@arkanet.app' : identifier;
+      await window.__signIn(window.__auth, emailToUse, pass);
+      showToast('AUTHENTIFICATION RÉUSSIE ✓','success');
+      setTimeout(()=>navigate(null,'chat.html',true),1200);
+    } catch(err){
+      loader.classList.remove('show');
+      const msgs={
+        'auth/user-not-found':'UTILISATEUR INTROUVABLE',
+        'auth/wrong-password':'MOT DE PASSE INCORRECT',
+        'auth/invalid-email':'FORMAT EMAIL INVALIDE',
+        'auth/too-many-requests':'TROP DE TENTATIVES — RÉESSAYEZ PLUS TARD'
+      };
+      showToast(msgs[err.code]||'ERREUR D\'AUTHENTIFICATION','error');
+    }
+  }
+
+  /* ── NAV ── */
+  function navigate(e,url,force){
+    if(e)e.preventDefault();
+    document.getElementById('wrapper').classList.add('page-out');
+    setTimeout(()=>window.location.href=url,460);
+  }
+  window.handleLogin=handleLogin;
+  window.switchTab=switchTab;
+  window.togglePass=togglePass;
+  window.navigate=navigate;
+</script>
+</body>
+</html>
