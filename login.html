@@ -218,7 +218,7 @@
 <!-- FIREBASE SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
   // ⚠️  REMPLACE CES VALEURS PAR TA CONFIG FIREBASE
   const firebaseConfig = {
@@ -233,6 +233,8 @@
   const auth = getAuth(app);
   window.__auth = auth;
   window.__signIn = signInWithEmailAndPassword;
+  window.__setPersistence = setPersistence;
+  window.__browserLocalPersistence = browserLocalPersistence;
 </script>
 
 <script>
@@ -301,9 +303,10 @@
     try {
       // Pour connexion par numéro, on utilise email=numero@arkanet.app (convention)
       const emailToUse = mode==='phone' ? identifier.replace(/\s/g,'')+'@arkanet.app' : identifier;
+      await window.__setPersistence(window.__auth, window.__browserLocalPersistence);
       await window.__signIn(window.__auth, emailToUse, pass);
       showToast('AUTHENTIFICATION RÉUSSIE ✓','success');
-      setTimeout(()=>navigate(null,'chat.html',true),1200);
+      setTimeout(()=>{ window.location.replace('chat.html'); }, 1200);
     } catch(err){
       loader.classList.remove('show');
       const msgs={
@@ -328,4 +331,5 @@
   window.navigate=navigate;
 </script>
 </body>
-</html>
+    </html>
+    
